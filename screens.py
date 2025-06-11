@@ -1,4 +1,6 @@
-# screens.py
+"""
+Модуль, що містить різні екрани інтерфейсу користувача для додатку.
+"""
 import random
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox,
                                QTextBrowser, QButtonGroup, QRadioButton, QMessageBox)
@@ -7,11 +9,18 @@ from sqlalchemy.orm import joinedload
 
 from database import Session
 from models import Question, Result, Material
-from ui_main_window import StatsCanvas  # Імпортуємо віджет для графіка
+# Імпортуємо StatsCanvas з нового місця
+from widgets import StatsCanvas
 
 
 class HomeScreen(QWidget):
+    """
+    Екран привітання, що дозволяє користувачеві вибрати тему тесту.
+    """
     def __init__(self, user, main_window):
+        """
+        Ініціалізує HomeScreen.
+        """
         super().__init__()
         self.user = user
         self.main_window = main_window
@@ -41,12 +50,21 @@ class HomeScreen(QWidget):
         layout.addStretch()
 
     def start_test(self):
+        """
+        Розпочинає новий тест на основі обраної теми.
+        """
         selected_topic = self.topic_combo.currentText()
         self.main_window.start_test_by_topic(selected_topic)
 
 
 class MaterialsScreen(QWidget):
+    """
+    Екран для перегляду навчальних матеріалів за темами.
+    """
     def __init__(self, main_window):
+        """
+        Ініціалізує MaterialsScreen.
+        """
         super().__init__()
         self.main_window = main_window
         layout = QVBoxLayout(self)
@@ -65,6 +83,9 @@ class MaterialsScreen(QWidget):
         self.load_material(self.topic_combo.currentText())
 
     def load_material(self, topic_name):
+        """
+        Завантажує та відображає навчальний матеріал для обраної теми.
+        """
         with Session() as session:
             material = session.query(Material).filter_by(topic=topic_name).first()
             if material:
@@ -74,7 +95,13 @@ class MaterialsScreen(QWidget):
 
 
 class TestScreen(QWidget):
+    """
+    Екран для проходження тесту.
+    """
     def __init__(self, user, topic, main_window):
+        """
+        Ініціалізує TestScreen.
+        """
         super().__init__()
         self.user = user
         self.topic = topic
@@ -98,6 +125,9 @@ class TestScreen(QWidget):
         self.display_question()
 
     def load_questions(self):
+        """
+        Завантажує питання для тесту з бази даних і перемішує їх.
+        """
         with Session() as session:
             self.questions = session.query(Question).filter_by(topic=self.topic).options(
                 joinedload(Question.options)).all()
@@ -106,6 +136,9 @@ class TestScreen(QWidget):
         self.correct_answers_count = 0
 
     def display_question(self):
+        """
+        Відображає поточне питання та варіанти відповідей.
+        """
         for i in reversed(range(self.options_layout.count())):
             self.options_layout.itemAt(i).widget().setParent(None)
 
@@ -123,6 +156,9 @@ class TestScreen(QWidget):
             self.next_btn.setText("Завершити тест")
 
     def process_next_question(self):
+        """
+        Обробляє відповідь користувача на поточне питання та переходить до наступного.
+        """
         checked_id = self.radio_group.checkedId()
         if checked_id == -1:
             QMessageBox.warning(self, "Увага", "Оберіть варіант відповіді.")
@@ -138,6 +174,9 @@ class TestScreen(QWidget):
             self.finish_test()
 
     def finish_test(self):
+        """
+        Завершує тест, зберігає результати та повертається на головний екран.
+        """
         total = len(self.questions)
         new_result = Result(user_name=self.user.username, topic=self.topic, score=self.correct_answers_count,
                             total_questions=total)
@@ -152,7 +191,13 @@ class TestScreen(QWidget):
 
 
 class ResultsScreen(QWidget):
+    """
+    Екран для відображення статистики результатів тестів користувача.
+    """
     def __init__(self, user, main_window):
+        """
+        Ініціалізує ResultsScreen.
+        """
         super().__init__()
         self.user = user
         self.main_window = main_window
@@ -162,6 +207,9 @@ class ResultsScreen(QWidget):
         self.load_results()
 
     def load_results(self):
+        """
+        Завантажує останні результати тестів користувача та відображає їх у вигляді графіка.
+        """
         with Session() as session:
             results = session.query(Result).filter_by(user_name=self.user.username).order_by(
                 Result.date_passed.desc()).all()

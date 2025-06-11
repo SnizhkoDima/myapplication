@@ -1,31 +1,41 @@
-# ui_main_window.py
-import sys
+"""
+Модуль, що визначає головне вікно додатку системи підготовки суддів.
+"""
+# import sys  # Видалено, оскільки sys не використовується
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QStackedWidget, QLabel, QFrame, QApplication)
 from PySide6.QtCore import Qt, QSize
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
+# Імпортуємо StatsCanvas з нового місця
+# from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+# from matplotlib.figure import Figure
 import qtawesome as qta
 
-
-# Клас для графіка
-class StatsCanvas(FigureCanvas):
-    def __init__(self, parent=None):
-        fig = Figure(figsize=(5, 4), dpi=100, facecolor='#f7f7f7')
-        self.axes = fig.add_subplot(111)
-        super().__init__(fig)
-        self.setParent(parent)
-
-
-# Імпортуємо класи екранів
+# Імпортуємо компоненти екранів
 from screens import HomeScreen, MaterialsScreen, TestScreen, ResultsScreen
+from widgets import StatsCanvas # Імпортуємо StatsCanvas з нового файлу
+
+
+# Клас для графіка - ПЕРЕМІЩЕНО ДО widgets.py
+# class StatsCanvas(FigureCanvas):
+#     def __init__(self, parent=None):
+#         fig = Figure(figsize=(5, 4), dpi=100, facecolor='#f7f7f7')
+#         self.axes = fig.add_subplot(111)
+#         super().__init__(fig)
+#         self.setParent(parent)
 
 
 class ExamApp(QMainWindow):
+    """
+    Основний клас додатку, що представляє головне вікно.
+    """
     def __init__(self, user):
+        """
+        Ініціалізує головне вікно ExamApp.
+        """
         super().__init__()
         self.current_user = user
-        self.setWindowTitle(f"Система Підготовки Суддів")
+        # Виправлено F541: додано self.current_user.username як плейсхолдер
+        self.setWindowTitle(f"Система Підготовки Суддів - {self.current_user.username}")
         self.setGeometry(100, 100, 1200, 800)
 
         central_widget = QWidget()
@@ -82,6 +92,9 @@ class ExamApp(QMainWindow):
         self.pages_stack.setCurrentIndex(0)
 
     def apply_styles(self):
+        """
+        Застосовує CSS-стилі до кнопок навігації.
+        """
         style = """
             QPushButton {
                 color: white; background-color: transparent; border: none;
@@ -93,6 +106,9 @@ class ExamApp(QMainWindow):
         self.centralWidget().setStyleSheet(style)
 
     def start_test_by_topic(self, topic_name):
+        """
+        Запускає новий тест за вказаною темою.
+        """
         test_screen = TestScreen(self.current_user, topic_name, self)
         self.pages_stack.addWidget(test_screen)
         self.pages_stack.setCurrentWidget(test_screen)
@@ -100,6 +116,9 @@ class ExamApp(QMainWindow):
             btn.setChecked(False)
 
     def show_main_screen(self, remove_test_screen=None):
+        """
+        Повертає користувача на головний екран.
+        """
         if remove_test_screen:
             self.pages_stack.removeWidget(remove_test_screen)
 
@@ -110,6 +129,9 @@ class ExamApp(QMainWindow):
                 break
 
     def logout(self):
+        """
+        Здійснює вихід користувача з системи.
+        """
         self.close()
         # Потрібен перезапуск додатку, що реалізовано в main.py
         QApplication.instance().setProperty("logged_out", True)

@@ -1,10 +1,15 @@
-# data_loader.py
+"""
+Модуль для заповнення бази даних початковими даними.
+"""
 import json
 from database import Session
 from models import Question, Option, Material, create_db_tables
 
 
 def seed_database():
+    """
+    Заповнює базу даних питаннями та матеріалами, якщо вона порожня.
+    """
     # Створюємо таблиці перед заповненням
     create_db_tables()
 

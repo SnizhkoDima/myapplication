@@ -1,4 +1,6 @@
-# models.py
+"""
+Модуль, що містить моделі даних для бази даних SQLAlchemy.
+"""
 import datetime
 import bcrypt
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
@@ -11,17 +13,26 @@ Base = declarative_base()
 
 
 class User(Base):
+    """
+    Модель користувача для зберігання облікових даних.
+    """
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
 
     def set_password(self, password):
+        """
+        Встановлює хешований пароль для користувача.
+        """
         pw_bytes = password.encode('utf-8')
         salt = bcrypt.gensalt()
         self.password_hash = bcrypt.hashpw(pw_bytes, salt).decode('utf-8')
 
     def check_password(self, password):
+        """
+        Перевіряє наданий пароль з хешованим паролем користувача.
+        """
         pw_bytes = password.encode('utf-8')
         hash_bytes = self.password_hash.encode('utf-8')
         try:
@@ -31,6 +42,9 @@ class User(Base):
 
 
 class Question(Base):
+    """
+    Модель питання тесту.
+    """
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True)
     topic = Column(String, nullable=False, index=True)
@@ -40,6 +54,9 @@ class Question(Base):
 
 
 class Option(Base):
+    """
+    Модель варіанта відповіді для питання.
+    """
     __tablename__ = 'options'
     id = Column(Integer, primary_key=True)
     option_text = Column(Text, nullable=False)
@@ -48,6 +65,9 @@ class Option(Base):
 
 
 class Result(Base):
+    """
+    Модель результатів тестування користувача.
+    """
     __tablename__ = 'results'
     id = Column(Integer, primary_key=True)
     user_name = Column(String, nullable=False, index=True)
@@ -58,11 +78,17 @@ class Result(Base):
 
 
 class Material(Base):
+    """
+    Модель навчальних матеріалів.
+    """
     __tablename__ = 'materials'
     id = Column(Integer, primary_key=True)
     topic = Column(String, unique=True, nullable=False)
     material_text = Column(Text, nullable=False)
 
-# Функція для створення таблиць
+
 def create_db_tables():
+    """
+    Створює всі таблиці бази даних, визначені моделями.
+    """
     Base.metadata.create_all(engine)

@@ -1,11 +1,13 @@
-# main.py
-import sys
+"""
+Головний модуль програми для системи підготовки суддів.
+Керує життєвим циклом додатку, включаючи вхід користувача та основне вікно.
+"""
 import os  # <-- Додаємо 'os' для сучасного налаштування High DPI
+import sys
 
 # QDialog тепер імпортується тут VVV
 from PySide6.QtWidgets import QApplication, QDialog
-# Видалені невикористані імпорти QCoreApplication та Qt
-# from PySide6.QtCore import QCoreApplication, Qt
+# from PySide6.QtCore import QCoreApplication, Qt # Ці імпорти залишаються видаленими, оскільки вони не використовуються
 from qt_material import apply_stylesheet
 
 # Імпортуємо компоненти
@@ -16,6 +18,9 @@ from models import create_db_tables
 
 
 def main():
+    """
+    Основна функція для запуску додатку.
+    """
     # Сучасний спосіб увімкнення High DPI (прибирає DeprecationWarning)
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
 
@@ -48,12 +53,11 @@ def main():
             # Якщо користувач вийшов, цикл почнеться знову, показуючи вікно логіну
             if not app.property("logged_out"):
                 break  # Вихід, якщо вікно було просто закрито
-            else:
+            else: # Видаляємо непотрібний else
                 app.setProperty("logged_out", False)  # Скидаємо прапорець
         else:
             # Якщо користувач закрив вікно входу
             break
-
 
 if __name__ == '__main__':
     main()

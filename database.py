@@ -1,4 +1,6 @@
-# database.py
+"""
+Модуль для налаштування з'єднання з базою даних.
+"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

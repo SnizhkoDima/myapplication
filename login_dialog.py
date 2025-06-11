@@ -1,4 +1,6 @@
-# login_dialog.py
+"""
+Модуль, що містить діалогове вікно для входу та реєстрації користувачів.
+"""
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, QPushButton,
                                QLabel, QMessageBox)
 from PySide6.QtCore import Qt
@@ -7,7 +9,13 @@ from models import User
 
 
 class LoginDialog(QDialog):
+    """
+    Діалогове вікно для входу або реєстрації користувачів у системі.
+    """
     def __init__(self, parent=None):
+        """
+        Ініціалізує LoginDialog.
+        """
         super().__init__(parent)
         self.setWindowTitle("Вхід та Реєстрація")
         self.setMinimumWidth(300)
@@ -48,6 +56,9 @@ class LoginDialog(QDialog):
         register_btn.clicked.connect(self.handle_register)
 
     def handle_login(self):
+        """
+        Обробляє спробу входу користувача.
+        """
         username = self.username_input.text()
         password = self.password_input.text()
         with Session() as session:
@@ -59,6 +70,9 @@ class LoginDialog(QDialog):
                 self.message_label.setText("Неправильне ім'я користувача або пароль.")
 
     def handle_register(self):
+        """
+        Обробляє спробу реєстрації нового користувача.
+        """
         username = self.username_input.text()
         password = self.password_input.text()
         if not username or len(password) < 4:
@@ -79,4 +93,7 @@ class LoginDialog(QDialog):
             self.message_label.setText("")
 
     def get_user(self):
+        """
+        Повертає об'єкт користувача, який успішно увійшов.
+        """
         return self.user
