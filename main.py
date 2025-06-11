@@ -4,7 +4,8 @@ import os  # <-- Додаємо 'os' для сучасного налаштув�
 
 # QDialog тепер імпортується тут VVV
 from PySide6.QtWidgets import QApplication, QDialog
-from PySide6.QtCore import QCoreApplication, Qt
+# Видалені невикористані імпорти QCoreApplication та Qt
+# from PySide6.QtCore import QCoreApplication, Qt
 from qt_material import apply_stylesheet
 
 # Імпортуємо компоненти

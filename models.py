@@ -5,8 +5,10 @@ from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, declarative_base
 from database import engine
 
+
 # Базовий клас для всіх моделей
 Base = declarative_base()
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -27,6 +29,7 @@ class User(Base):
         except ValueError:
             return False
 
+
 class Question(Base):
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True)
@@ -35,12 +38,14 @@ class Question(Base):
     options = relationship("Option", back_populates="question", cascade="all, delete-orphan")
     correct_option_id = Column(Integer)
 
+
 class Option(Base):
     __tablename__ = 'options'
     id = Column(Integer, primary_key=True)
     option_text = Column(Text, nullable=False)
     question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
     question = relationship("Question", back_populates="options")
+
 
 class Result(Base):
     __tablename__ = 'results'
@@ -50,6 +55,7 @@ class Result(Base):
     score = Column(Integer, nullable=False)
     total_questions = Column(Integer, nullable=False)
     date_passed = Column(DateTime, default=datetime.datetime.utcnow)
+
 
 class Material(Base):
     __tablename__ = 'materials'
