@@ -2,15 +2,13 @@
 Головний модуль програми для системи підготовки суддів.
 Керує життєвим циклом додатку, включаючи вхід користувача та основне вікно.
 """
-import os  # <-- Додаємо 'os' для сучасного налаштування High DPI
+
+import os  # Додаємо 'os' для сучасного налаштування High DPI
 import sys
 
-# QDialog тепер імпортується тут VVV
 from PySide6.QtWidgets import QApplication, QDialog
-# from PySide6.QtCore import QCoreApplication, Qt # Ці імпорти залишаються видаленими, оскільки вони не використовуються
 from qt_material import apply_stylesheet
 
-# Імпортуємо компоненти
 from ui_main_window import ExamApp
 from login_dialog import LoginDialog
 from data_loader import seed_database
@@ -20,28 +18,34 @@ from models import create_db_tables
 def main():
     """
     Основна функція для запуску додатку.
+
+    Вона виконує:
+    - Увімкнення підтримки High DPI
+    - Ініціалізацію Qt-додатку з темою оформлення
+    - Створення таблиць бази даних, якщо їх ще немає
+    - Наповнення бази даних тестовими даними (один раз)
+    - Цикл входу користувача та показу головного вікна
+
+    Цикл повторюється, якщо користувач виходить із головного вікна через кнопку "Вийти".
+    Усі інші способи завершують програму.
     """
     # Сучасний спосіб увімкнення High DPI (прибирає DeprecationWarning)
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
 
-    # Старі, застарілі рядки ми видалили.
-    # QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    # QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
     app = QApplication(sys.argv)
     app.setProperty("logged_out", False)
 
-    # Застосовуємо глобальну тему
+    # Застосовуємо глобальну тему оформлення
     apply_stylesheet(app, theme='dark_teal.xml')
 
-    # Створюємо таблиці в БД
+    # Ініціалізуємо базу даних
     create_db_tables()
-    # Заповнюємо даними (тільки якщо БД порожня)
     seed_database()
 
     while True:
         login_dialog = LoginDialog()
-        # Тепер програма знає, що таке QDialog.Accepted VVV
+
+        # Відображаємо діалог входу
         if login_dialog.exec() == QDialog.Accepted:
             current_user = login_dialog.get_user()
 
@@ -50,15 +54,13 @@ def main():
 
             app.exec()
 
-            # Якщо користувач вийшов, цикл почнеться знову, показуючи вікно логіну
             if not app.property("logged_out"):
-                break  # Вихід, якщо вікно було просто закрито
-            else: # Видаляємо непотрібний else
-                app.setProperty("logged_out", False)  # Скидаємо прапорець
+                break  # Користувач закрив додаток
+            else:
+                app.setProperty("logged_out", False)  # Скидаємо прапорець для повторного входу
         else:
-            # Якщо користувач закрив вікно входу
-            break
+            break  # Користувач закрив вікно входу без авторизації
+
 
 if __name__ == '__main__':
     main()
-    # sys.exit() тут не потрібен, бо app.exec() керує виходом
