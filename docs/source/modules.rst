@@ -30,3 +30,8 @@
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: myapplication
+   :members:
+   :undoc-members:
+   :show-inheritance:
