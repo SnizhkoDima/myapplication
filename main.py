@@ -12,7 +12,6 @@ from logger_config import logger
 def get_user_config_path():
     config_dir = QStandardPaths.writableLocation(QStandardPaths.AppConfigLocation)
     os.makedirs(config_dir, exist_ok=True)
-    logger.debug(f"Конфігураційна директорія: {config_dir}")
     return os.path.join(config_dir, "user_config.json")
 
 
@@ -21,9 +20,10 @@ def save_user_to_config(user):
     try:
         with open(config_path, 'w', encoding='utf-8') as f:
             json.dump({'user': user}, f)
-        logger.info("Користувач успішно збережений до конфігурації.")
+        logger.debug("Користувач успішно збережений у файл конфігурації.")
     except Exception as e:
-        logger.error(f"Не вдалося зберегти користувача: {e}")
+        logger.exception("Не вдалося зберегти користувача в конфігурацію.")
+        show_error("Помилка збереження", str(e))
 
 
 def load_user_from_config():
@@ -31,11 +31,22 @@ def load_user_from_config():
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            logger.info("Користувача завантажено з конфігурації.")
             return data.get('user')
-    except Exception as e:
-        logger.warning(f"Не вдалося завантажити користувача: {e}")
+    except FileNotFoundError:
+        logger.warning("Файл конфігурації користувача не знайдено.")
         return None
+    except Exception as e:
+        logger.exception("Не вдалося завантажити користувача з конфігурації.")
+        return None
+
+
+def show_error(title, details):
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Critical)
+    msg.setWindowTitle(title)
+    msg.setText("Сталася помилка.")
+    msg.setDetailedText(details)
+    msg.exec()
 
 
 def main():
@@ -48,6 +59,10 @@ def main():
         login_dialog = LoginDialog()
         if login_dialog.exec():
             user = login_dialog.get_user()
+            if not user:
+                logger.warning("Користувач не ввів ім'я.")
+                show_error("Помилка входу", "Ім'я користувача не може бути порожнім.")
+                sys.exit(1)
             save_user_to_config(user)
         else:
             logger.info("Користувач скасував вхід. Завершення програми.")
@@ -56,19 +71,12 @@ def main():
     try:
         window = ExamApp(user)
         window.show()
-        logger.info("Основне вікно відображено.")
         exit_code = app.exec()
         logger.info("Завершення додатку з кодом %s", exit_code)
         sys.exit(exit_code)
     except Exception as e:
-        logger.critical("Невідома помилка у додатку:", exc_info=True)
-        traceback.print_exc()
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Critical)
-        msg.setWindowTitle("Помилка")
-        msg.setText("Сталася неочікувана помилка.")
-        msg.setDetailedText(str(e))
-        msg.exec()
+        logger.exception("Невідома помилка під час запуску додатку.")
+        show_error("Невідома помилка", str(e))
         sys.exit(1)
 
 
