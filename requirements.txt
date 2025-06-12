@@ -1,1 +1,3 @@
 sphinx
+qt-material
+PySide6
